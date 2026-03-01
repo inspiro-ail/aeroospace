@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌌 Планетарный Классификатор</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0e27;
+            --bg-medium: #1a1a2e;
+            --bg-card: #16213e;
+            --fg-light: #e0e0e0;
+            --fg-muted: #a0a0a0;
+            --accent-blue: #4facfe;
+            --accent-purple: #667eea;
+            --accent-pink: #f093fb;
+            --accent-green: #00ff88;
+            --accent-red: #ff4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Mono', monospace;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-medium) 50%, var(--bg-card) 100%);
+            color: var(--fg-light);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Звездный фон */
+        .star-field {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+            box-shadow: 0 0 4px rgba(255, 255, 255, 0.8);
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* Основной контейнер */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Заголовок */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #00f2fe 0%, #4facfe 50%, #f093fb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            color: var(--fg-muted);
+            font-size: 1.1rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        /* Статус бар */
+        .status-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 16px 32px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(79, 172, 254, 0.3);
+            border-radius: 50px;
+            margin: 0 auto 40px;
+            max-width: 400px;
+            backdrop-filter: blur(10px);
+            animation: slideIn 0.6s ease-out 0.3s both;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-connected { background: var(--accent-green); box-shadow: 0 0 15px var(--accent-green); }
+        .status-error { background: var(--accent-red); box-shadow: 0 0 15px var(--accent-red); }
+        .status-checking { background: var(--fg-muted); box-shadow: 0 0 15px var(--fg-muted); }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Кнопки действий */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 16px 32px;
+            border: none;
+            border-radius: 50px;
+            color: white;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            box-shadow: 0 4px 20px rgba(245, 87, 108, 0.4);
+        }
+
+        .btn-tertiary {
+            background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+            box-shadow: 0 4px 20px rgba(79, 172, 254, 0.4);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px currentColor;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Сетка планет */
+        .planets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        /* Карточка планеты */
+        .planet-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid rgba(79, 172, 254, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            animation: fadeInUp 0.6s ease-out backwards;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .planet-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(79, 172, 254, 0.5);
+            box-shadow: 0 15px 40px rgba(79, 172, 254, 0.2);
+        }
+
+        .planet-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 25px;
+        }
+
+        .planet-name {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--accent-blue);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .delete-btn {
+            background: rgba(255, 68, 68, 0.2);
+            border: 1px solid rgba(255, 68, 68, 0.4);
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--accent-red);
+            font-size: 1.2rem;
+        }
+
+        .delete-btn:hover {
+            background: rgba(255, 68, 68, 0.4);
+            transform: rotate(90deg);
+        }
+
+        .planet-specs {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .spec-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(79, 172, 254, 0.1);
+        }
+
+        .spec-label {
+            font-size: 0.75rem;
+            color: var(--fg-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .spec-value {
+            color: var(--fg-light);
+            font-size: 0.95rem;
+        }
+
+        .classify-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+            margin-bottom: 20px;
+        }
+
+        .classify-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(245, 87, 108, 0.6);
+        }
+
+        .classify-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Результат классификации */
+        .result-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid;
+            animation: resultAppear 0.5s ease-out;
+            margin-top: 20px;
+        }
+
+        @keyframes resultAppear {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .result-useful {
+            border-color: var(--accent-green);
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.1) 0%, rgba(0, 255, 136, 0.05) 100%);
+        }
+
+        .result-not-useful {
+            border-color: var(--accent-red);
+            background: linear-gradient(135deg, rgba(255, 68, 68, 0.1) 0%, rgba(255, 68, 68, 0.05) 100%);
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .result-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .result-title-useful { color: var(--accent-green); }
+        .result-title-not-useful { color: var(--accent-red); }
+
+        .confidence-bar {
+            margin-bottom: 20px;
+        }
+
+        .confidence-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            color: var(--fg-muted);
+            font-size: 0.9rem;
+        }
+
+        .confidence-track {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+            border-radius: 10px;
+            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 10px rgba(79, 172, 254, 0.5);
+        }
+
+        .result-section {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            color: var(--accent-blue);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .section-content {
+            color: var(--fg-light);
+            line-height: 1.6;
+        }
+
+        .list-item {
+            display: flex;
+            align-items: start;
+            gap: 10px;
+            margin-bottom: 8px;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+        }
+
+        .list-bullet {
+            color: var(--accent-blue);
+            flex-shrink: 0;
+            margin-top: 4px;
+        }
+
+        /* Модальные окна */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, var(--bg-medium) 0%, var(--bg-card) 100%);
+            padding: 40px;
+            border-radius: 20px;
+            border: 2px solid rgba(79, 172, 254, 0.3);
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: scaleIn 0.3s ease;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .modal-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            color: var(--accent-blue);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--fg-muted);
+            cursor: pointer;
+            font-size: 1.5rem;
+            transition: color 0.3s ease;
+        }
+
+        .close-btn:hover {
+            color: var(--accent-red);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--fg-muted);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(79, 172, 254, 0.3);
+            border-radius: 10px;
+            color: white;
+            font-family: 'Space Mono', monospace;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 20px rgba(79, 172, 254, 0.3);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--fg-muted);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        /* Файловый input */
+        .file-input {
+            display: none;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2rem;
+            }
+            
+            .planets-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .planet-specs {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Звездный фон -->
+    <div class="star-field" id="starField"></div>
+
+    <div class="container">
+        <!-- Заголовок -->
+        <div class="header">
+            <h1 class="title">🌌 ПЛАНЕТАРНЫЙ КЛАССИФИКАТОР</h1>
+        </div>
+
+        <!-- Статус бар -->
+        <div class="status-bar">
+            <div class="status-dot status-checking" id="statusDot"></div>
+            <span id="statusText">Проверка подключения...</span>
+        </div>
+
+        <!-- Кнопки действий -->
+        <div class="action-buttons">
+            <button class="btn btn-primary" onclick="showAddModal()">
+                ➕ Добавить планету
+            </button>
+            <button class="btn btn-secondary" onclick="showImportModal()">
+                📁 Импорт из файла
+            </button>
+            <button class="btn btn-tertiary" onclick="exportData('json')">
+                💾 Экспорт JSON
+            </button>
+            <button class="btn btn-tertiary" onclick="exportData('csv')">
+                💾 Экспорт CSV
+            </button>
+            <button class="btn btn-secondary" onclick="clearAll()">
+                🗑️ Очистить все
+            </button>
+        </div>
+
+        <!-- Сетка планет -->
+        <div class="planets-grid" id="planetsGrid"></div>
+    </div>
+
+    <!-- Модальное окно добавления планеты -->
+    <div class="modal" id="addModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Новая планета</h2>
+                <button class="close-btn" onclick="closeModal('addModal')">✕</button>
+            </div>
+
+            <form id="addForm" onsubmit="addPlanet(event)">
+                <div class="form-group">
+                    <label class="form-label">Название планеты</label>
+                    <input class="form-input" name="name" required placeholder="например, HD 40307g">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Масса</label>
+                    <input class="form-input" name="mass" placeholder="например, 7 Earth masses">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Радиус</label>
+                    <input class="form-input" name="radius" placeholder="например, 1.9 Earth radii">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Температура</label>
+                    <input class="form-input" name="temperature" placeholder="например, 300 K (+27°C)">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Атмосфера</label>
+                    <input class="form-input" name="atmosphere" placeholder="например, Dense nitrogen-oxygen">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Наличие воды</label>
+                    <input class="form-input" name="waterPresence" placeholder="например, Liquid water on surface">
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('addModal')" style="flex: 1;">
+                        Отмена
+                    </button>
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">
+                        Добавить
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Модальное окно импорта -->
+    <div class="modal" id="importModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Импорт планет</h2>
+                <button class="close-btn" onclick="closeModal('importModal')">✕</button>
+            </div>
+
+            <div style="text-align: center; margin-bottom: 30px;">
+                <p style="color: var(--fg-muted); margin-bottom: 20px;">
+                    Выберите файл JSON или CSV с данными о планетах
+                </p>
+
+                <input type="file" id="jsonFileInput" class="file-input" accept=".json" onchange="importFile('json')">
+                <input type="file" id="csvFileInput" class="file-input" accept=".csv" onchange="importFile('csv')">
+
+                <button class="btn btn-primary" onclick="document.getElementById('jsonFileInput').click()" style="margin-right: 10px;">
+                    📄 Выбрать JSON
+                </button>
+                <button class="btn btn-primary" onclick="document.getElementById('csvFileInput').click()">
+                    📊 Выбрать CSV
+                </button>
+            </div>
+
+            <div style="border-top: 1px solid rgba(79, 172, 254, 0.3); padding-top: 20px;">
+                <p style="text-align: center; color: var(--fg-muted); margin-bottom: 15px;">
+                    Скачайте шаблон файла с примерами:
+                </p>
+                <div style="display: flex; gap: 10px; justify-content: center;">
+                    <button class="btn btn-tertiary" onclick="downloadTemplate('json')">
+                        📥 Шаблон JSON
+                    </button>
+                    <button class="btn btn-tertiary" onclick="downloadTemplate('csv')">
+                        📥 Шаблон CSV
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Инициализация звезд
+        function createStars() {
+            const starField = document.getElementById('starField');
+            for (let i = 0; i < 80; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                star.style.animationDelay = `${Math.random() * 3}s`;
+                star.style.animationDuration = `${2 + Math.random() * 2}s`;
+                starField.appendChild(star);
+            }
+        }
+
+        // Проверка статуса Ollama
+        async function checkStatus() {
+            try {
+                const response = await fetch('/api/status');
+                const data = await response.json();
+                
+                const statusDot = document.getElementById('statusDot');
+                const statusText = document.getElementById('statusText');
+                
+                if (data.status === 'connected') {
+                    statusDot.className = 'status-dot status-connected';
+                    statusText.textContent = 'ИИ подключен • Модель: llama3.2';
+                } else {
+                    statusDot.className = 'status-dot status-error';
+                    statusText.textContent = '🔴 ' + data.message;
+                }
+            } catch (error) {
+                const statusDot = document.getElementById('statusDot');
+                const statusText = document.getElementById('statusText');
+                statusDot.className = 'status-dot status-error';
+                statusText.textContent = 'Ошибка подключения к серверу';
+            }
+        }
+
+        // Загрузка планет
+        async function loadPlanets() {
+            try {
+                const response = await fetch('/api/planets');
+                const planets = await response.json();
+                
+                const grid = document.getElementById('planetsGrid');
+                
+                if (planets.length === 0) {
+                    grid.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🌍</div>
+                            <h3>Нет планет</h3>
+                            <p>Добавьте планету или импортируйте данные из файла</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                grid.innerHTML = planets.map(planet => createPlanetCard(planet)).join('');
+            } catch (error) {
+                console.error('Ошибка загрузки планет:', error);
+            }
+        }
+
+        // Создание карточки планеты
+        function createPlanetCard(planet) {
+            const classificationHTML = planet.classification ? `
+                <div class="result-card ${planet.classification.useful ? 'result-useful' : 'result-not-useful'}">
+                    <div class="result-header">
+                        <div class="result-title ${planet.classification.useful ? 'result-title-useful' : 'result-title-not-useful'}">
+                            ${planet.classification.useful ? '✅ ПОЛЕЗНАЯ ПЛАНЕТА' : '❌ НЕ ПОЛЕЗНАЯ'}
+                        </div>
+                    </div>
+                    
+                    <div class="confidence-bar">
+                        <div class="confidence-label">
+                            <span>Уверенность</span>
+                            <span>${planet.classification.confidence}%</span>
+                        </div>
+                        <div class="confidence-track">
+                            <div class="confidence-fill" style="width: ${planet.classification.confidence}%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="result-section">
+                        <div class="section-title">Обоснование</div>
+                        <div class="section-content">${planet.classification.reasoning}</div>
+                    </div>
+                    
+                    ${planet.classification.potentialUses && planet.classification.potentialUses.length > 0 ? `
+                        <div class="result-section">
+                            <div class="section-title">Возможные применения</div>
+                            ${planet.classification.potentialUses.map(use => `
+                                <div class="list-item">
+                                    <span class="list-bullet">▸</span>
+                                    <span>${use}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                    
+                    ${planet.classification.risks && planet.classification.risks.length > 0 ? `
+                        <div class="result-section">
+                            <div class="section-title">Риски</div>
+                            ${planet.classification.risks.map(risk => `
+                                <div class="list-item">
+                                    <span class="list-bullet">▸</span>
+                                    <span>${risk}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            ` : '';
+
+            return `
+                <div class="planet-card">
+                    <div class="planet-header">
+                        <div class="planet-name">🌍 ${planet.name}</div>
+                        <button class="delete-btn" onclick="deletePlanet(${planet.id})">✕</button>
+                    </div>
+                    
+                    <div class="planet-specs">
+                        <div class="spec-item">
+                            <div class="spec-label">Масса</div>
+                            <div class="spec-value">${planet.mass}</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-label">Радиус</div>
+                            <div class="spec-value">${planet.radius}</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-label">Температура</div>
+                            <div class="spec-value">${planet.temperature}</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-label">Атмосфера</div>
+                            <div class="spec-value">${planet.atmosphere}</div>
+                        </div>
+                        <div class="spec-item">
+                            <div class="spec-label">Вода</div>
+                            <div class="spec-value">${planet.waterPresence}</div>
+                        </div>
+                    </div>
+                    
+                    <button class="classify-btn" id="classify-${planet.id}" onclick="classifyPlanet(${planet.id})">
+                        ✨ Классифицировать с AI
+                    </button>
+                    
+                    ${classificationHTML}
+                </div>
+            `;
+        }
+
+        // Показать модальное окно
+        function showAddModal() {
+            document.getElementById('addModal').classList.add('active');
+        }
+
+        function showImportModal() {
+            document.getElementById('importModal').classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Добавление планеты
+        async function addPlanet(event) {
+            event.preventDefault();
+            
+            const form = event.target;
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+            
+            try {
+                const response = await fetch('/api/planets', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    closeModal('addModal');
+                    form.reset();
+                    await loadPlanets();
+                } else {
+                    alert('Ошибка добавления планеты');
+                }
+            } catch (error) {
+                console.error('Ошибка:', error);
+                alert('Ошибка подключения к серверу');
+            }
+        }
+
+        // Удаление планеты
+        async function deletePlanet(id) {
+            if (!confirm('Удалить эту планету?')) return;
+            
+            try {
+                const response = await fetch(`/api/planets/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    await loadPlanets();
+                }
+            } catch (error) {
+                console.error('Ошибка:', error);
+            }
+        }
+
+        // Классификация планеты
+        async function classifyPlanet(id) {
+            const btn = document.getElementById(`classify-${id}`);
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading"></span> Анализ...';
+            
+            try {
+                const response = await fetch(`/api/classify/${id}`, {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    await loadPlanets();
+                } else {
+                    const data = await response.json();
+                    alert('Ошибка классификации: ' + (data.error || 'Неизвестная ошибка'));
+                    btn.disabled = false;
+                    btn.innerHTML = '✨ Классифицировать с AI';
+                }
+            } catch (error) {
+                console.error('Ошибка:', error);
+                alert('Ошибка подключения к серверу');
+                btn.disabled = false;
+                btn.innerHTML = '✨ Классифицировать с AI';
+            }
+        }
+
+        // Импорт файла
+        async function importFile(type) {
+            const input = document.getElementById(type === 'json' ? 'jsonFileInput' : 'csvFileInput');
+            const file = input.files[0];
+            
+            if (!file) return;
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            try {
+                const response = await fetch(`/api/import/${type}`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    alert(data.message);
+                    closeModal('importModal');
+                    await loadPlanets();
+                } else {
+                    alert('Ошибка импорта: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Ошибка:', error);
+                alert('Ошибка подключения к серверу');
+            }
+            
+            input.value = '';
+        }
+
+        // Экспорт данных
+        function exportData(format) {
+            window.location.href = `/api/export/${format}`;
+        }
+
+        // Скачать шаблон
+        function downloadTemplate(format) {
+            window.location.href = `/api/templates/${format}`;
+        }
+
+        // Очистить все
+        async function clearAll() {
+            if (!confirm('Удалить все планеты?')) return;
+            
+            try {
+                const response = await fetch('/api/planets/clear', {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    await loadPlanets();
+                }
+            } catch (error) {
+                console.error('Ошибка:', error);
+            }
+        }
+
+        // Закрытие модального окна по клику вне его
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+
+        // Инициализация
+        window.addEventListener('DOMContentLoaded', () => {
+            createStars();
+            checkStatus();
+            loadPlanets();
+            
+            // Периодическая проверка статуса
+            setInterval(checkStatus, 30000);
+        });
+    </script>
+</body>
+</html>
